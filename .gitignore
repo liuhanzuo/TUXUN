@@ -1,0 +1,5 @@
+__pycache__/
+benchmark/
+data/
+mp16_pro_with_clip_embeddings/
+*.jpg

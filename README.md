@@ -35,6 +35,8 @@ https://github.com/facebookresearch/faiss/blob/main/INSTALL.md
 # Install the project dependencies
 pip install -r requirements.txt
 
+UPTOHERE
+
 # Download MP16 dataset
 http://www.multimediaeval.org/mediaeval2016/placing/
 
@@ -55,6 +57,7 @@ streamlit run app.py --browser.gatherUsageStats false
 ```
 
 ## License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Contact

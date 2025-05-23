@@ -34,3 +34,5 @@ torchaudio
 torchvision
 transformers
 uvicorn
+einops
+timm
