@@ -36,3 +36,4 @@ transformers
 uvicorn
 einops
 timm
+sentencepiece
