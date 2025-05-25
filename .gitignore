@@ -4,5 +4,4 @@ data/
 mp16_pro_with_clip_embeddings/
 *.jpg
 *.geojson
-shape_centers*
 *.pth
