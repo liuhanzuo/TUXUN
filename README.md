@@ -1,7 +1,3 @@
-Ablation Study
-VLM w geocell w country [85, 259, 622, 1081, 1457], [3, 153, 634, 1158, 1495] ,[134, 334, 496, 853, 1289] 2k
-VLM o geocell o country [86, 247, 586, 1029, 1410], [3, 153, 634, 1158, 1495] ,[134, 334, 496, 853, 1289] 2k
-
 # TUXUN
 
 ## Installation
