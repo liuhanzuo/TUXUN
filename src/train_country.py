@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, random_split
 import numpy as np
 from sklearn.metrics import accuracy_score, classification_report, top_k_accuracy_score
 from tqdm import tqdm
-# Prepare device
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Initialize model
@@ -22,7 +22,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 # Load dataset
-full_dataset = Dataset.load_from_disk("/scorpio/home/liuhanzuo/Img2Loc/mp16_pro_with_clip_embeddings")
+full_dataset = Dataset.load_from_disk("./mp16_pro_with_clip_embeddings")
 
 # Split into train and validation sets (80-20 split)
 train_size = int(0.9 * len(full_dataset))
@@ -64,14 +64,14 @@ def collate_fn(batch):
 # Create DataLoaders
 train_dataloader = DataLoader(
     train_dataset,
-    batch_size=64,
+    batch_size=512,
     shuffle=True,
     collate_fn=collate_fn
 )
 
 val_dataloader = DataLoader(
     val_dataset,
-    batch_size=64,
+    batch_size=512,
     shuffle=False,
     collate_fn=collate_fn
 )
@@ -111,17 +111,10 @@ def evaluate(model, dataloader):
     
     avg_loss = val_loss / len(all_labels)
     
-    # Calculate metrics without using argmax
-    # 1. Probability-based accuracy (using ground truth class probability)
     prob_acc = np.mean(all_probs[range(len(all_labels)), all_labels])
-    
-    # 2. Cross-entropy between predictions and one-hot labels
     ce_loss = -np.mean(np.log(all_probs[all_one_hot == 1] + 1e-10))
-    
-    # Get all possible class labels from the mapping
     all_possible_labels = np.array(list(country_name_to_idx.values()))
     
-    # 3. Top-k accuracy (using probability distribution)
     try:
         top3_acc = top_k_accuracy_score(
             all_labels, 
@@ -138,19 +131,9 @@ def evaluate(model, dataloader):
             k=min(3, len(unique_labels))
         )
     
-    # Generate classification report
     pred_classes = np.argmax(all_probs, axis=1)
-    report = classification_report(
-    all_labels,
-    pred_classes,
-    labels=np.unique(all_labels),
-    target_names=[country for country, idx in country_name_to_idx.items() 
-                 if idx in np.unique(all_labels)],
-    zero_division=0  
-)
-
     
-    return avg_loss, prob_acc, top3_acc, ce_loss, report
+    return avg_loss, prob_acc, top3_acc, ce_loss
 
 
 # Training loop
@@ -158,9 +141,10 @@ num_epochs = 30
 best_val_loss = float('inf')
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
     optimizer, 
-    T_max=num_epochs,      # 训练总轮数
-    eta_min=1e-5           # 最小学习率
+    T_max=num_epochs,
+    eta_min=1e-5
 )
+
 for epoch in tqdm(range(num_epochs)):
     # Training phase
     model.train()
@@ -177,10 +161,6 @@ for epoch in tqdm(range(num_epochs)):
         
         optimizer.zero_grad()
         outputs = model(images, return_logits = True)
-        # print(outputs)
-        # print(outputs.shape)
-        # print(labels)
-        # assert False
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -200,18 +180,12 @@ for epoch in tqdm(range(num_epochs)):
         continue
     
     # Validation phase
-    val_loss, prob_acc, top3_acc, ce_loss, val_report = evaluate(model, val_dataloader)
+    val_loss, prob_acc, top3_acc, ce_loss = evaluate(model, val_dataloader)
     print(f"Val Metrics:")
     print(f"- Loss: {val_loss:.4f}")
     print(f"- Prob Accuracy: {prob_acc:.4f} (average ground truth class probability)")
     print(f"- Top-3 Accuracy: {top3_acc:.4f}")
     print(f"- Cross-Entropy: {ce_loss:.4f} (direct prob vs one-hot)")
-    
-    # Print classification report (first 20 classes for readability)
-    if val_report:
-        print("\nValidation Classification Report (first 20 classes):")
-        lines = val_report.split('\n')[:22]  # Header + 20 classes
-        print('\n'.join(lines))
     
     # Save best model
     if val_loss < best_val_loss:

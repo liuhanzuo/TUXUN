@@ -1,6 +1,58 @@
-x country 1 geocell 1 dataset 3 nonvalid=dataset Valid=3171, [184, 384, 1033, 1808, 2305], [3, 178, 1045, 1948, 2457], [544, 761, 1032, 1525, 2093]
-country 1 geocell 0 dataset 1 nonvalid=dataset [647, 912, 1307, 1973, 2702], [4, 233, 1341, 2473, 3104], [675, 931, 1281, 1905, 2622]
-x copuntry 1 geocell 0 dataset 3 nonvalid=dataset Valid=4000, [596, 851, 1279, 2007, 2725], [4, 233, 1341, 2473, 3104], [675, 931, 1281, 1905, 2622]
-country 1 geocell 1 dataset 1 nonvalid=dataset [388, 639, 1314, 2187, 2836], [4, 233, 1341, 2473, 3104], [675, 931, 1281, 1905, 2622]
-country 0 geocell 1 dataset 1 nonvalid=dataset [549, 801, 1278, 2003, 2703], [4, 233, 1341, 2473, 3104], [675, 931, 1281, 1905, 2622]
-country 0 geocell 1 dataset 1 nonvalid=geocell [414, 667, 1327, 2119, 2776], [4, 233, 1341, 2473, 3104], [675, 931, 1281, 1905, 2622]
+Ablation Study
+VLM w geocell w country [85, 259, 622, 1081, 1457], [3, 153, 634, 1158, 1495] ,[134, 334, 496, 853, 1289] 2k
+VLM o geocell o country [86, 247, 586, 1029, 1410], [3, 153, 634, 1158, 1495] ,[134, 334, 496, 853, 1289] 2k
+
+# TUXUN
+
+## Installation
+
+Instructions on how to install and set up the project.
+
+```bash
+# Clone the repository
+git clone git@github.com:liuhanzuo/TUXUN.git
+
+# Change to the project directory
+cd TUXUN
+
+# Create a conda environment
+conda create -n tuxun python=3.10
+
+# Activate the conda environment
+conda activate tuxun
+
+# Install the project dependencies
+pip install -r requirements.txt
+
+# Install the faiss database
+conda install faiss-gpu
+```
+
+## Prepare dataset
+```bash
+# Download 2k_random_test from im2gps3k dataset and store it in ./benchmark/2k
+# Preprocess the im2gps3k evaluation dataset
+python src/im2gps3k_data_preprocess.py
+
+# Prepare the YFCC4k evaluation dataset
+python src/yfcc4k_data_preprocess.py
+```
+
+## Achieve CLIP Embeddings and Train Classifiers
+
+```bash
+# Load the dataset and generate CLIP Embeddings
+python src/embeddings.python
+
+# Train the country classifier
+python src/train_country.py
+
+# Train the geocell classifier
+python src/train_city.py
+```
+
+## Usage
+```bash
+# Run the main code!
+python main.py
+```
